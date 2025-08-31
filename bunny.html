@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bunny Love</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(to top, #ffe4f4 60%, #a2e0fa 100%);
+    }
+    .scene {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: -1;
+      pointer-events: none;
+    }
+    .beach {
+      position: absolute;
+      left: 0; right: 0;
+      bottom: 23vh;
+      height: 10vh;
+      background: linear-gradient(to top, #ffedb8 70%, #ffe4a7 100%);
+      border-top-left-radius: 50% 30px;
+      border-top-right-radius: 50% 30px;
+      z-index: 2;
+      box-shadow: 0 -6px 20px #fbd08160;
+    }
+    .water {
+      position: absolute;
+      left: 0; right: 0;
+      bottom: 0;
+      height: 30vh;
+      background: linear-gradient(to top, #8fd3f4 60%, #a2e0fa 100%);
+      overflow: hidden;
+      z-index: 1;
+    }
+    .wave {
+      position: absolute;
+      left: 0; bottom: 0;
+      width: 200vw; height: 46px;
+      background: url('data:image/svg+xml;utf8,<svg width="400" height="46" viewBox="0 0 400 46" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 23 Q 50 0, 100 23 T 200 23 T 300 23 T 400 23 V46 H0Z" fill="%23ffffff" fill-opacity="0.4"/></svg>');
+      background-size: 400px 46px;
+      animation: waveMove 6s linear infinite;
+      opacity: 0.7;
+      z-index: 2;
+    }
+    .wave2 {
+      bottom: 10px;
+      opacity: 0.5;
+      animation: waveMove 10s linear infinite reverse;
+    }
+    @keyframes waveMove {
+      0% { background-position-x: 0; }
+      100% { background-position-x: 400px; }
+    }
+    .sun-corner {
+      position: absolute;
+      top: 20px; left: 20px;
+      width: 110px; height: 110px;
+      z-index: 3;
+      pointer-events: none;
+    }
+    /* Roses */
+    .roses {
+      position: absolute;
+      left: 50%;
+      bottom: 27vh;
+      transform: translateX(-50%);
+      z-index: 5;
+      display: flex;
+      gap: 18px;
+    }
+    /* Birds */
+    .bird {
+      position: absolute;
+      width: 48px;
+      height: 32px;
+      z-index: 4;
+      pointer-events: none;
+      opacity: 0.85;
+      animation: bird-fly 11s linear infinite;
+    }
+    .bird.bird2 { animation-delay: 2.5s }
+    .bird.bird3 { animation-delay: 5s }
+    .bird.bird4 { animation-delay: 7.5s }
+    .bird.bird5 { animation-delay: 9s }
+    @keyframes bird-fly {
+      0% {
+        left: -60px;
+        top: 65px;
+        opacity: 0;
+        transform: scale(1) rotate(-8deg);
+      }
+      7% {
+        opacity: 1;
+      }
+      40% {
+        opacity: 1;
+        top: 104px;
+        transform: scale(1.1) rotate(-4deg);
+      }
+      60% {
+        top: 87px;
+        opacity: 1;
+        transform: scale(1.2) rotate(7deg);
+      }
+      90% {
+        left: 110vw;
+        top: 120px;
+        opacity: 1;
+      }
+      100% {
+        left: 110vw;
+        opacity: 0;
+      }
+    }
+    /* Message box next to bunny head */
+    .message-container {
+      position: absolute;
+      left: 54vw;
+      top: 31vh;
+      min-width: 220px;
+      z-index: 10;
+      text-align: left;
+      pointer-events: none;
+    }
+    .message {
+      background: #fff0faee;
+      padding: 16px 28px;
+      border-radius: 30px;
+      box-shadow: 0 2px 8px #eab8d4;
+      font-size: 1.19em;
+      display: inline-block;
+      min-width: 120px;
+      margin-bottom: 0;
+      margin-left: 14px;
+    }
+    /* Bunny container */
+    .bunny-container {
+      position: relative;
+      width: 390px;
+      height: 210px;
+      margin-bottom: 0;
+      z-index: 6;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    /* Main bunny with big tummy and open mouth */
+    .bunny-main {
+      position: absolute;
+      left: 90px; top: 20px;
+      width: 170px; height: 190px;
+      z-index: 6;
+    }
+    /* Small bunny comes in with huge smile */
+    .bunny-small {
+      position: absolute;
+      left: -100px; /* Start off-screen */
+      bottom: 10px;
+      width: 94px; height: 110px;
+      z-index: 7;
+      opacity: 0;
+      transition: left 1s cubic-bezier(.37,1.26,.7,.93), opacity 0.7s;
+    }
+    .bunny-small.show {
+      left: 205px; /* Arrives next to main bunny */
+      opacity: 1;
+    }
+    /* Controls styling */
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin: 32px 0 0 0;
+      z-index: 10;
+      position: relative;
+    }
+    button {
+      background: #f8b0ea;
+      color: #fff;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 25px;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-bottom: 0;
+    }
+    button:disabled {
+      background: #ebd3e9;
+      cursor: not-allowed;
+    }
+    button:hover:not(:disabled) {
+      background: #d57bd9;
+    }
+    @media (max-width: 700px) {
+      .bunny-container { width: 95vw; }
+      .message-container { left: 44vw; top: 26vh; }
+      .sun-corner { width: 70px; height: 70px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="scene">
+    <!-- Sun with brown mid-part hair -->
+    <svg class="sun-corner" viewBox="0 0 110 110">
+      <circle cx="55" cy="55" r="38" fill="#fff86d" stroke="#ffe066" stroke-width="5"/>
+      <g stroke="#ffe066" stroke-width="5">
+        <line x1="55" y1="7" x2="55" y2="0"/>
+        <line x1="55" y1="103" x2="55" y2="110"/>
+        <line x1="7" y1="55" x2="0" y2="55"/>
+        <line x1="103" y1="55" x2="110" y2="55"/>
+        <line x1="23" y1="23" x2="8" y2="8"/>
+        <line x1="87" y1="23" x2="102" y2="8"/>
+        <line x1="23" y1="87" x2="8" y2="102"/>
+        <line x1="87" y1="87" x2="102" y2="102"/>
+      </g>
+      <!-- Brown mid-part hair -->
+      <path d="M38 25 Q55 13 72 25 Q60 30 55 29 Q50 30 38 25Z" fill="#7a5432" stroke="#5a391f" stroke-width="2"/>
+      <ellipse cx="50" cy="25" rx="4" ry="3" fill="#7a5432"/>
+      <ellipse cx="60" cy="25" rx="4" ry="3" fill="#7a5432"/>
+      <!-- Eyes and smile -->
+      <ellipse cx="44" cy="57" rx="4" ry="4" fill="#222"/>
+      <ellipse cx="66" cy="57" rx="4" ry="4" fill="#222"/>
+      <path d="M47 71 Q55 80 63 71" stroke="#f6bb2b" stroke-width="3" fill="none"/>
+      <ellipse cx="44" cy="63" rx="4" ry="1.5" fill="#ffd6d6"/>
+      <ellipse cx="66" cy="63" rx="4" ry="1.5" fill="#ffd6d6"/>
+    </svg>
+    <div class="beach"></div>
+    <div class="water">
+      <div class="wave"></div>
+      <div class="wave wave2"></div>
+    </div>
+    <!-- Roses row -->
+    <div class="roses">
+      <!-- Three SVG roses -->
+      <svg width="40" height="60" viewBox="0 0 40 60">
+        <ellipse cx="20" cy="19" rx="13" ry="15" fill="#e11d48"/>
+        <ellipse cx="20" cy="15" rx="10" ry="7" fill="#fb7185"/>
+        <ellipse cx="20" cy="22" rx="7" ry="6" fill="#be123c"/>
+        <rect x="17" y="30" width="6" height="29" rx="3" fill="#14532d"/>
+        <ellipse cx="12" cy="39" rx="5" ry="3" fill="#22c55e" transform="rotate(-14 12 39)"/>
+        <ellipse cx="28" cy="46" rx="6" ry="3" fill="#16a34a" transform="rotate(12 28 46)"/>
+      </svg>
+      <svg width="40" height="60" viewBox="0 0 40 60">
+        <ellipse cx="20" cy="19" rx="13" ry="15" fill="#e11d48"/>
+        <ellipse cx="20" cy="15" rx="10" ry="7" fill="#fb7185"/>
+        <ellipse cx="20" cy="22" rx="7" ry="6" fill="#be123c"/>
+        <rect x="17" y="30" width="6" height="29" rx="3" fill="#14532d"/>
+        <ellipse cx="12" cy="39" rx="5" ry="3" fill="#22c55e" transform="rotate(-14 12 39)"/>
+        <ellipse cx="28" cy="46" rx="6" ry="3" fill="#16a34a" transform="rotate(12 28 46)"/>
+      </svg>
+      <svg width="40" height="60" viewBox="0 0 40 60">
+        <ellipse cx="20" cy="19" rx="13" ry="15" fill="#e11d48"/>
+        <ellipse cx="20" cy="15" rx="10" ry="7" fill="#fb7185"/>
+        <ellipse cx="20" cy="22" rx="7" ry="6" fill="#be123c"/>
+        <rect x="17" y="30" width="6" height="29" rx="3" fill="#14532d"/>
+        <ellipse cx="12" cy="39" rx="5" ry="3" fill="#22c55e" transform="rotate(-14 12 39)"/>
+        <ellipse cx="28" cy="46" rx="6" ry="3" fill="#16a34a" transform="rotate(12 28 46)"/>
+      </svg>
+    </div>
+    <!-- Birds -->
+    <svg class="bird bird1" viewBox="0 0 48 32">
+      <!-- Body -->
+      <ellipse cx="24" cy="19" rx="16" ry="10" fill="#53a5e6" stroke="#34618d" stroke-width="2"/>
+      <!-- Wings -->
+      <ellipse cx="18" cy="12" rx="7" ry="5" fill="#bae6fd" stroke="#7dd3fc" stroke-width="1"/>
+      <!-- Beak -->
+      <polygon points="38,17 46,14 39,21" fill="#fec107"/>
+      <!-- Eye -->
+      <ellipse cx="35" cy="18" rx="1.7" ry="1.7" fill="#fff"/>
+      <ellipse cx="35" cy="18" rx="0.8" ry="0.8" fill="#111"/>
+    </svg>
+    <svg class="bird bird2" viewBox="0 0 48 32">
+      <ellipse cx="24" cy="19" rx="16" ry="10" fill="#53a5e6" stroke="#34618d" stroke-width="2"/>
+      <ellipse cx="18" cy="12" rx="7" ry="5" fill="#bae6fd" stroke="#7dd3fc" stroke-width="1"/>
+      <polygon points="38,17 46,14 39,21" fill="#fec107"/>
+      <ellipse cx="35" cy="18" rx="1.7" ry="1.7" fill="#fff"/>
+      <ellipse cx="35" cy="18" rx="0.8" ry="0.8" fill="#111"/>
+    </svg>
+    <svg class="bird bird3" viewBox="0 0 48 32">
+      <ellipse cx="24" cy="19" rx="16" ry="10" fill="#53a5e6" stroke="#34618d" stroke-width="2"/>
+      <ellipse cx="18" cy="12" rx="7" ry="5" fill="#bae6fd" stroke="#7dd3fc" stroke-width="1"/>
+      <polygon points="38,17 46,14 39,21" fill="#fec107"/>
+      <ellipse cx="35" cy="18" rx="1.7" ry="1.7" fill="#fff"/>
+      <ellipse cx="35" cy="18" rx="0.8" ry="0.8" fill="#111"/>
+    </svg>
+    <svg class="bird bird4" viewBox="0 0 48 32">
+      <ellipse cx="24" cy="19" rx="16" ry="10" fill="#53a5e6" stroke="#34618d" stroke-width="2"/>
+      <ellipse cx="18" cy="12" rx="7" ry="5" fill="#bae6fd" stroke="#7dd3fc" stroke-width="1"/>
+      <polygon points="38,17 46,14 39,21" fill="#fec107"/>
+      <ellipse cx="35" cy="18" rx="1.7" ry="1.7" fill="#fff"/>
+      <ellipse cx="35" cy="18" rx="0.8" ry="0.8" fill="#111"/>
+    </svg>
+    <svg class="bird bird5" viewBox="0 0 48 32">
+      <ellipse cx="24" cy="19" rx="16" ry="10" fill="#53a5e6" stroke="#34618d" stroke-width="2"/>
+      <ellipse cx="18" cy="12" rx="7" ry="5" fill="#bae6fd" stroke="#7dd3fc" stroke-width="1"/>
+      <polygon points="38,17 46,14 39,21" fill="#fec107"/>
+      <ellipse cx="35" cy="18" rx="1.7" ry="1.7" fill="#fff"/>
+      <ellipse cx="35" cy="18" rx="0.8" ry="0.8" fill="#111"/>
+    </svg>
+  </div>
+  <div class="message-container">
+    <div class="message" id="bunnyMessage"></div>
+  </div>
+  <div class="bunny-container">
+    <svg class="bunny-main" viewBox="0 0 170 190">
+      <!-- Ears -->
+      <ellipse cx="50" cy="35" rx="22" ry="46" fill="#fff" stroke="#bfbfbf" stroke-width="4"/>
+      <ellipse cx="120" cy="35" rx="22" ry="46" fill="#fff" stroke="#bfbfbf" stroke-width="4"/>
+      <ellipse cx="50" cy="40" rx="12" ry="34" fill="#ffd1e9"/>
+      <ellipse cx="120" cy="40" rx="12" ry="34" fill="#ffd1e9"/>
+      <!-- Body (huge tummy) -->
+      <ellipse cx="85" cy="120" rx="64" ry="72" fill="#fff" stroke="#bfbfbf" stroke-width="5"/>
+      <!-- Face -->
+      <ellipse cx="85" cy="82" rx="40" ry="37" fill="#fff" stroke="#bfbfbf" stroke-width="5"/>
+      <!-- Eyes -->
+      <ellipse cx="70" cy="78" rx="6.6" ry="7.5" fill="#222"/>
+      <ellipse cx="100" cy="78" rx="6.6" ry="7.5" fill="#222"/>
+      <!-- Open smiling mouth -->
+      <ellipse cx="85" cy="103" rx="20" ry="15" fill="#ffb3c6" stroke="#a21b3c" stroke-width="3"/>
+      <ellipse cx="85" cy="112" rx="10" ry="4" fill="#fff"/>
+      <!-- Nose -->
+      <ellipse cx="85" cy="92" rx="5.5" ry="4" fill="#f6bb2b"/>
+      <!-- Cheeks -->
+      <ellipse cx="65" cy="92" rx="8" ry="5" fill="#ffd6d6"/>
+      <ellipse cx="105" cy="92" rx="8" ry="5" fill="#ffd6d6"/>
+      <!-- Hands -->
+      <ellipse cx="42" cy="144" rx="11" ry="19" fill="#fff" stroke="#bfbfbf" stroke-width="3"/>
+      <ellipse cx="128" cy="144" rx="11" ry="19" fill="#fff" stroke="#bfbfbf" stroke-width="3"/>
+      <!-- Feet -->
+      <ellipse cx="60" cy="187" rx="13" ry="7" fill="#fff" stroke="#bfbfbf" stroke-width="3"/>
+      <ellipse cx="110" cy="187" rx="13" ry="7" fill="#fff" stroke="#bfbfbf" stroke-width="3"/>
+    </svg>
+    <svg class="bunny-small" id="smallBunny" viewBox="0 0 94 110">
+      <!-- Ears -->
+      <ellipse cx="21" cy="23" rx="12" ry="28" fill="#fff" stroke="#bfbfbf" stroke-width="3"/>
+      <ellipse cx="73" cy="23" rx="12" ry="28" fill="#fff" stroke="#bfbfbf" stroke-width="3"/>
+      <ellipse cx="21" cy="28" rx="7" ry="18" fill="#ffd1e9"/>
+      <ellipse cx="73" cy="28" rx="7" ry="18" fill="#ffd1e9"/>
+      <!-- Body -->
+      <ellipse cx="47" cy="70" rx="34" ry="36" fill="#fff" stroke="#bfbfbf" stroke-width="3"/>
+      <!-- Face -->
+      <ellipse cx="47" cy="55" rx="22" ry="20" fill="#fff" stroke="#bfbfbf" stroke-width="3"/>
+      <!-- Eyes (smiling) -->
+      <path d="M39 55 Q42 58 45 55" stroke="#222" stroke-width="3" fill="none"/>
+      <path d="M49 55 Q52 58 55 55" stroke="#222" stroke-width="3" fill="none"/>
+      <!-- Huge smile -->
+      <path d="M39 67 Q47 82 55 67" stroke="#a21b3c" stroke-width="3.5" fill="none"/>
+      <!-- Nose -->
+      <ellipse cx="47" cy="62" rx="3.7" ry="2.1" fill="#f6bb2b"/>
+      <!-- Cheeks -->
+      <ellipse cx="37" cy="63" rx="5" ry="2.3" fill="#ffd6d6"/>
+      <ellipse cx="57" cy="63" rx="5" ry="2.3" fill="#ffd6d6"/>
+      <!-- Hands -->
+      <ellipse cx="27" cy="95" rx="6" ry="10" fill="#fff" stroke="#bfbfbf" stroke-width="2"/>
+      <ellipse cx="67" cy="95" rx="6" ry="10" fill="#fff" stroke="#bfbfbf" stroke-width="2"/>
+      <!-- Feet -->
+      <ellipse cx="37" cy="107" rx="8" ry="4" fill="#fff" stroke="#bfbfbf" stroke-width="2"/>
+      <ellipse cx="57" cy="107" rx="8" ry="4" fill="#fff" stroke="#bfbfbf" stroke-width="2"/>
+    </svg>
+  </div>
+  <div class="controls">
+    <button id="prevBtn">Previous</button>
+    <button id="nextBtn">Next</button>
+  </div>
+  <script>
+    const messages = [
+      "Hey! 👋",
+      "Your girlfriend loves you 💖",
+      "And she will always love you! 🥰",
+      "She even has a gift for you! 🎁",
+      "Visit her and you'll see ahahahaha 😘",
+      "Come to me baby! 🐇"
+    ];
+    const bunnyMessage = document.getElementById("bunnyMessage");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const smallBunny = document.getElementById("smallBunny");
+    let current = 0;
+    function updateMessage() {
+      bunnyMessage.textContent = messages[current];
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === messages.length - 1;
+      if (current === messages.length - 1) {
+        smallBunny.classList.add("show");
+      } else {
+        smallBunny.classList.remove("show");
+      }
+    }
+    prevBtn.onclick = () => {
+      if (current > 0) {
+        current--;
+        updateMessage();
+      }
+    };
+    nextBtn.onclick = () => {
+      if (current < messages.length - 1) {
+        current++;
+        updateMessage();
+      }
+    };
+    updateMessage();
+  </script>
+</body>
+</html>
